@@ -17,8 +17,6 @@ let listArrays = []
 let draggedItem
 let currentColumn
 
-
-
 function getSavedColumns() {
   if (localStorage.getItem('backlogItems')) {
     backlogListArray = JSON.parse(localStorage.backlogItems)
@@ -41,12 +39,20 @@ function updateSavedColumns() {
   })
 }
 
+function filterArray(array) {
+  const filteredArray = array.filter( item => item !== null)
+  return filteredArray
+}
+
 function createItemEl(columnEl, column, item, index) {
   const listEl = document.createElement('li')
   listEl.classList.add('drag-item')
   listEl.textContent = item
   listEl.draggable = true
   listEl.setAttribute('ondragstart', 'drag(event)')
+  listEl.contenteditable = true
+  listEl.id = index
+  listEl.setAttribute('onfocusout', `updateItem(${index}, ${column})`)
   columnEl.appendChild(listEl)
 }
 
@@ -59,23 +65,34 @@ function updateDOM() {
   backlogListArray.forEach( (backlogItem, index) => {
     createItemEl(backlogList, 0, backlogItem, index)
   })
+  backlogListArray = filterArray(backlogListArray)
 
   progressList.textContent = ''
   progressListArray.forEach( (progressItem, index) => {
-    createItemEl(progressList, 0, progressItem, index)
+    createItemEl(progressList, 1, progressItem, index)
   })
-
+  progressListArray = filterArray(progressArray)
   completeList.textContent = ''
   completeListArray.forEach( (completeItem, index) => {
-    createItemEl(completeList, 0, completeItem, index)
+    createItemEl(completeList, 2, completeItem, index)
   })
-
+  completeListArray = filterArray(completeListArray)
   onHoldList.textContent = ''
   onHoldListArray.forEach( (onHoldItem, index) => {
-    createItemEl(onHoldList, 0, onHoldItem, index)
+    createItemEl(onHoldList, 3, onHoldItem, index)
   })
+  onHoldListArray = filterArray(onHoldListArray)
   updatedOnLoad = true
   updateSavedColumns()
+}
+
+function updateItem(id, column) {
+  const selectedArray = listArrays[column]
+  const selectedColumnEl = listColumns[column].children
+  if (selectedColumnEl[id].textContent) {
+    delete selectedArray[id]
+  }
+  updateDOM()
 }
 
 function addToColumn(column) {
@@ -83,10 +100,8 @@ function addToColumn(column) {
   const selectedArray = listArrays[column]
   selectedArray.push(itemText)
   addItems[column].textContent = ''
-  updateDOM()
+  updateDOM(column)
 }
-
-
 
 function showInputBox(column) {
   addBtns[column].style.visibility = 'hidden'
@@ -100,7 +115,6 @@ function hideInputBox(column) {
   addItemContainers[column].style.display = 'hide'
   addToColumn(column)
 }
-
 
 function rebuildArrays() {
   backlogListArray = []
