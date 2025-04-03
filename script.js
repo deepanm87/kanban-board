@@ -9,8 +9,6 @@ const completeList = document.getElementById('complete-list')
 const onHoldList = document.getElementById('on-hold-list')
 
 let updatedOnLoad = false
-
-
 let backlogListArray = []
 let progressListArray = []
 let completeListArray = []
@@ -52,7 +50,6 @@ function createItemEl(columnEl, column, item, index) {
   columnEl.appendChild(listEl)
 }
 
-
 function updateDOM() {
   if(!updatedOnLoad) {
     getSavedColumns()
@@ -80,6 +77,30 @@ function updateDOM() {
   updatedOnLoad = true
   updateSavedColumns()
 }
+
+function addToColumn(column) {
+  const itemText = addItems[column].textContent
+  const selectedArray = listArrays[column]
+  selectedArray.push(itemText)
+  addItems[column].textContent = ''
+  updateDOM()
+}
+
+
+
+function showInputBox(column) {
+  addBtns[column].style.visibility = 'hidden'
+  saveItemBtns[column].style.display = 'flex'
+  addItemContainers[column].style.display = 'flex'
+}
+
+function hideInputBox(column) {
+  addBtns[column].style.visibility = 'visible'
+  saveItemBtns[column].style.display = 'hide'
+  addItemContainers[column].style.display = 'hide'
+  addToColumn(column)
+}
+
 
 function rebuildArrays() {
   backlogListArray = []
